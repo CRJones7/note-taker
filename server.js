@@ -4,7 +4,7 @@ var fs = require('fs');
 const { v4: uuidv4 } = require('uuid')
 
 var app = express();
-var PORT = process.env.PORT || 8080;
+var PORT = process.env.PORT || 8090;
 
 notes = [];
 
@@ -23,17 +23,8 @@ app.get('/notes', function (req, res) {
 //api rout
 app.get('/api/notes', function (req, res) {
     fs.readFileSync(path.join(__dirname, 'db/db.json'), 'utf-8');
-    // console.log(typeof notes);
-    // console.log(notes);
     return res.json(notes);
-    // fs.readFile(path.join(__dirname, 'db/db.json'), function(err, data){
-    //     console.log(data);
-    //     if (err) {
-    //         throw err;
-    //     } else {
-    //         return res.json(data);
-    //     }
-    // })
+
 });
 
 app.post('/api/notes', function (req, res) {
@@ -47,7 +38,6 @@ app.post('/api/notes', function (req, res) {
         if (err) {
             throw err;
         } else {
-            // notes.push(newNote);
             res.json(true);
             return res.end();
             
@@ -55,7 +45,20 @@ app.post('/api/notes', function (req, res) {
     })
 });
 
-app.delete('/api/notes', function (req, res) {
+app.delete('/api/notes/:id', function (req, res) {
+let deleteId = req.params.id;
+
+let newNotes = notes.filter( note => note.id != deleteId);
+
+fs.writeFile(path.join(__dirname, '/db/db.json'), JSON.stringify(newNotes), function (err) {
+    if (err) {
+        throw err;
+    } else {
+        notes = newNotes;
+        return res.end();
+    }
+})
+
 
 });
 
